@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TestNotationPolonaise
 {
@@ -17,10 +18,62 @@ namespace TestNotationPolonaise
             do
             {
                 Console.WriteLine();
-                Console.Write(message + " (" + carac1 + "/" + carac2 + ") ");
+                Console.Write(message + " (" + char.ToUpper(carac1) + "/" + char.ToUpper(carac2) + ") ");
                 reponse = Console.ReadKey().KeyChar;
-            } while (reponse != carac1 && reponse != carac2);
+                reponse = char.ToUpper(reponse);  // Convertir en majuscule pour comparaison uniforme
+                Console.WriteLine();  // Passer à la ligne après avoir appuyé sur une touche
+            } while (reponse != char.ToUpper(carac1) && reponse != char.ToUpper(carac2));
             return reponse;
+        }
+
+        /// <summary>
+        /// Calcule une expression en notation polonaise
+        /// </summary>
+        /// <param name="expression">la formule en notation polonaise</param>
+        /// <returns>résultat du calcul</returns>
+        static double Polonaise(string expression)
+        {
+            string[] tokens = expression.Split(' ');
+            Stack<double> stack = new Stack<double>();
+
+            // On itère sur les éléments de droite à gauche
+            for (int i = tokens.Length - 1; i >= 0; i--)
+            {
+                string token = tokens[i];
+
+                if (double.TryParse(token, out double number))
+                {
+                    // Si le token est un nombre, on le place dans la pile
+                    stack.Push(number);
+                }
+                else
+                {
+                    // Sinon, il doit s'agir d'un opérateur (+, -, *, /)
+                    double operand1 = stack.Pop();
+                    double operand2 = stack.Pop();
+
+                    switch (token)
+                    {
+                        case "+":
+                            stack.Push(operand1 + operand2);
+                            break;
+                        case "-":
+                            stack.Push(operand1 - operand2);
+                            break;
+                        case "*":
+                            stack.Push(operand1 * operand2);
+                            break;
+                        case "/":
+                            stack.Push(operand1 / operand2);
+                            break;
+                        default:
+                            throw new InvalidOperationException("Opérateur non valide : " + token);
+                    }
+                }
+            }
+
+            // Le dernier élément dans la pile est le résultat final
+            return stack.Pop();
         }
 
         /// <summary>
@@ -34,7 +87,7 @@ namespace TestNotationPolonaise
             do
             {
                 Console.WriteLine();
-                Console.WriteLine("entrez une formule polonaise en séparant chaque partie par un espace = ");
+                Console.WriteLine("Entrez une formule polonaise en séparant chaque partie par un espace = ");
                 string laFormule = Console.ReadLine();
                 // affichage du résultat
                 Console.WriteLine("Résultat =  " + Polonaise(laFormule));
